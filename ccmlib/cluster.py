@@ -68,7 +68,7 @@ class Cluster(object):
                 self.__version = v if v is not None else self.__get_version_from_build()
 
             if create_directory:
-                common.validate_install_dir(self.__install_dir)
+                #common.validate_install_dir(self.__install_dir)
                 self._update_config()
         except:
             if create_directory:
@@ -191,7 +191,8 @@ class Cluster(object):
         return log_watcher
 
     def get_install_dir(self):
-        common.validate_install_dir(self.__install_dir)
+        #common.validate_install_dir(self.__install_dir)
+        # disable install_dir validation
         return self.__install_dir
 
     def hasOpscenter(self):
@@ -257,6 +258,8 @@ class Cluster(object):
         if not ipformat:
             ipformat = ipprefix + "%d"
 
+        #iplist = ['10.2.101.66', '10.2.101.68', '10.2.101.69']
+        iplist = ['127.0.0.1', '127.0.0.2', '127.0.0.3']
         for i in xrange(1, node_count + 1):
             tk = None
             if tokens is not None and i - 1 < len(tokens):
@@ -265,14 +268,17 @@ class Cluster(object):
 
             binary = None
             if self.cassandra_version() >= '1.2':
-                binary = (ipformat % i, 9042)
+#                 binary = (ipformat % i, 9042)
+                binary = (iplist[i-1], 9042)
             thrift = None
             if self.cassandra_version() < '4':
-                thrift = (ipformat % i, 9160)
+#                 thrift = (ipformat % i, 9160)
+                thrift = (iplist[i-1], 9160)
             node = self.create_node(name='node%s' % i,
                                     auto_bootstrap=False,
                                     thrift_interface=thrift,
-                                    storage_interface=(ipformat % i, 7000),
+#                                     storage_interface=(ipformat % i, 7000),
+                                    storage_interface=(iplist[i-1], 7000),
                                     jmx_port=str(7000 + i * 100),
                                     remote_debug_port=str(2000 + i * 100) if debug else str(0),
                                     byteman_port=str(4000 + i * 100) if install_byteman else str(0),

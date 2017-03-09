@@ -109,6 +109,12 @@ class Node(object):
         self.__classes_log_level = {}
         self.__environment_variables = environment_variables or {}
         self.__conf_updated = False
+        
+        self.__deb_install_bin_dir = "/usr/sbin"
+        self.__deb_install_nodetool_dir = "/usr/bin"
+        self.__deb_install_conf_dir = "/etc/cassandra"
+        self.__deb_install_cassandra_dir = "/usr/share/cassandra"
+        
         if save:
             self.import_config_files()
             self.import_bin_files()
@@ -181,7 +187,8 @@ class Node(object):
         update_conf = not self.__conf_updated
         if update_conf:
             self.__conf_updated = True
-        env = common.make_cassandra_env(self.get_install_dir(), self.get_path(), update_conf)
+        #env = common.make_cassandra_env(self.get_install_dir(), self.get_path(), update_conf)
+        env = common.make_cassandra_env(self.get_deb_install_cassandra_dir(), self.get_path(), update_conf)
         for (key, value) in self.__environment_variables.items():
             env[key] = value
         return env
@@ -203,6 +210,18 @@ class Node(object):
         Returns the IP use by this node for internal communication
         """
         return self.network_interfaces['storage'][0]
+
+    def get_deb_install_conf_dir(self):
+        return self.__deb_install_conf_dir
+
+    def get_deb_install_bin_dir(self):
+        return self.__deb_install_bin_dir
+
+    def get_deb_install_nodetool_dir(self):
+        return self.__deb_install_nodetool_dir
+
+    def get_deb_install_cassandra_dir(self):
+        return self.__deb_install_cassandra_dir
 
     def get_install_dir(self):
         """
@@ -537,8 +556,9 @@ class Node(object):
             warnings.warn("Thrift interface {}:{} is not listening after 30 seconds, node may have failed to start.".format(thrift_itf[0], thrift_itf[1]))
 
     def get_launch_bin(self):
-        cdir = self.get_install_dir()
-        launch_bin = common.join_bin(cdir, 'bin', 'cassandra')
+#         cdir = self.get_install_dir()
+#         launch_bin = common.join_bin(cdir, 'bin', 'cassandra')
+        launch_bin = self.get_deb_install_bin_dir() + '/cassandra'
         # Copy back the cassandra scripts since profiling may have modified it the previous time
         shutil.copy(launch_bin, self.get_bin_dir())
         return common.join_bin(self.get_path(), 'bin', 'cassandra')
@@ -1345,19 +1365,23 @@ class Node(object):
         raise common.ArgumentError('Cannot import DSE configuration files on a Cassandra node')
 
     def copy_config_files(self):
-        conf_dir = os.path.join(self.get_install_dir(), 'conf')
+        #conf_dir = os.path.join(self.get_install_dir(), 'conf')
+        conf_dir = self.get_deb_install_conf_dir()
         for name in os.listdir(conf_dir):
             filename = os.path.join(conf_dir, name)
             if os.path.isfile(filename):
                 shutil.copy(filename, self.get_conf_dir())
 
     def import_bin_files(self):
-        bin_dir = os.path.join(self.get_install_dir(), 'bin')
-        for name in os.listdir(bin_dir):
-            filename = os.path.join(bin_dir, name)
-            if os.path.isfile(filename):
-                shutil.copy(filename, self.get_bin_dir())
-                common.add_exec_permission(bin_dir, name)
+#         bin_dir = os.path.join(self.get_install_dir(), 'bin')
+#         for name in os.listdir(bin_dir):
+#             filename = os.path.join(bin_dir, name)
+#             if os.path.isfile(filename):
+#                 shutil.copy(filename, self.get_bin_dir())
+#                 common.add_exec_permission(bin_dir, name)
+        file_list = [self.__deb_install_bin_dir + '/cassandra', self.__deb_install_nodetool_dir + '/nodetool', self.__deb_install_cassandra_dir + '/cassandra.in.sh']
+        for filename in file_list:
+            shutil.copy(filename, self.get_bin_dir())
 
     def __clean_bat(self):
         # While the Windows specific changes to the batch files to get them to run are

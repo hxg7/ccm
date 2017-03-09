@@ -28,10 +28,11 @@ class ClusterFactory():
                 install_dir = data['cassandra_dir']
                 repository.validate(install_dir)
 
-            if common.isDse(install_dir):
-                cluster = DseCluster(path, data['name'], install_dir=install_dir, create_directory=False)
-            else:
-                cluster = Cluster(path, data['name'], install_dir=install_dir, create_directory=False)
+#             if common.isDse(install_dir):
+#                 cluster = DseCluster(path, data['name'], install_dir=install_dir, create_directory=False)
+#             else:
+#                 cluster = Cluster(path, data['name'], install_dir=install_dir, create_directory=False)
+            cluster = Cluster(path, data['name'], install_dir=install_dir, create_directory=False)
             node_list = data['nodes']
             seed_list = data['seeds']
             if 'partitioner' in data:

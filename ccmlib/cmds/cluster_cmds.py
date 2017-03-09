@@ -141,7 +141,9 @@ class ClusterCreateCmd(Cmd):
             exit(1)
         if not options.version:
             try:
-                common.validate_install_dir(options.install_dir)
+                #common.validate_install_dir(options.install_dir)
+                # skip install_dir check
+                pass
             except ArgumentError:
                 parser.print_help()
                 parser.error("%s is not a valid cassandra directory. You must define a cassandra dir or version." % options.install_dir)
@@ -158,10 +160,11 @@ class ClusterCreateCmd(Cmd):
 
     def run(self):
         try:
-            if self.options.dse or (not self.options.version and common.isDse(self.options.install_dir)):
-                cluster = DseCluster(self.path, self.name, install_dir=self.options.install_dir, version=self.options.version, dse_username=self.options.dse_username, dse_password=self.options.dse_password, dse_credentials_file=self.options.dse_credentials_file, opscenter=self.options.opscenter, verbose=True)
-            else:
-                cluster = Cluster(self.path, self.name, install_dir=self.options.install_dir, version=self.options.version, verbose=True)
+            #if self.options.dse or (not self.options.version and common.isDse(self.options.install_dir)):
+            #    cluster = DseCluster(self.path, self.name, install_dir=self.options.install_dir, version=self.options.version, dse_username=self.options.dse_username, dse_password=self.options.dse_password, dse_credentials_file=self.options.dse_credentials_file, opscenter=self.options.opscenter, verbose=True)
+            #else:
+            #    cluster = Cluster(self.path, self.name, install_dir=self.options.install_dir, version=self.options.version, verbose=True)
+            cluster = Cluster(self.path, self.name, install_dir=self.options.install_dir, version=self.options.version, verbose=True)
         except OSError as e:
             import traceback
             print_('Cannot create cluster: %s\n%s' % (str(e), traceback.format_exc()), file=sys.stderr)
